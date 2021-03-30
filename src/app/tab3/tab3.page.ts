@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FotoService } from '../services/foto.service';
+import { AngularFireStorage } from '@angular/fire/storage';
+
 
 @Component({
   selector: 'app-tab3',
@@ -8,11 +10,36 @@ import { FotoService } from '../services/foto.service';
 })
 export class Tab3Page {
 
-  constructor(public fotoService:FotoService) {}
+  urlimagestorage : string[] = [];
 
-  async ngOnInit()
+  constructor(private afStorage : AngularFireStorage, public fotoService : FotoService) 
   {
-    await this.fotoService.loadFoto();
+     
+  }
+
+  // async ngOnInit() {
+  //   await this.fotoService.loadFoto();
+  //   this.tampildata();
+  // }
+
+  async ionViewDidEnter()
+  {
+    this.tampildata();
+  }
+
+  tampildata()
+  {
+    this.urlimagestorage = [];
+    var refImage = this.afStorage.storage.ref('imgStorage');
+    refImage.listAll().then((res) => {
+      res.items.forEach((itemRef) => {
+        itemRef.getDownloadURL().then((url) => {
+          this.urlimagestorage.unshift(url)
+        })
+      });
+    }).catch((error) => {
+      console.log(error)
+    });
   }
 
 }
